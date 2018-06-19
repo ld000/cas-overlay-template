@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resolver:AttributeResolver
+        xmlns:resolver="urn:mace:shibboleth:2.0:resolver"
+        xmlns:pc="urn:mace:shibboleth:2.0:resolver:pc"
+        xmlns:ad="urn:mace:shibboleth:2.0:resolver:ad"
+        xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
+        xmlns:enc="urn:mace:shibboleth:2.0:attribute:encoder"
+        xmlns:sec="urn:mace:shibboleth:2.0:security"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:mace:shibboleth:2.0:resolver http://shibboleth.net/schema/idp/shibboleth-attribute-resolver.xsd
+                            urn:mace:shibboleth:2.0:resolver:pc http://shibboleth.net/schema/idp/shibboleth-attribute-resolver-pc.xsd
+                            urn:mace:shibboleth:2.0:resolver:ad http://shibboleth.net/schema/idp/shibboleth-attribute-resolver-ad.xsd
+                            urn:mace:shibboleth:2.0:resolver:dc http://shibboleth.net/schema/idp/shibboleth-attribute-resolver-dc.xsd
+                            urn:mace:shibboleth:2.0:attribute:encoder http://shibboleth.net/schema/idp/shibboleth-attribute-encoder.xsd
+                            urn:mace:shibboleth:2.0:security http://shibboleth.net/schema/idp/shibboleth-security.xsd">
+
+    <resolver:DataConnector id="dataConnector" xsi:type="dc:RelationalDatabase">
+        <dc:ApplicationManagedConnection jdbcDriver="com.mysql.jdbc.Driver"
+                                         jdbcURL="jdbc:mysql://mysql.com:3306/congcong?useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true&amp;useSSL=false"
+                                         jdbcUserName="root"
+                                         jdbcPassword="mqoa" />
+        <dc:QueryTemplate>
+            <![CDATA[
+                select * from sys_user where login_name='$requestContext.principalName'
+           ]]>
+        </dc:QueryTemplate>
+        <dc:Column columnName="login_name" attributeID="username" />
+        <dc:Column columnName="origin_password" attributeID="password" />
+    </resolver:DataConnector>
+
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="username" sourceAttributeID="username">
+        <resolver:Dependency ref="dataConnector" />
+        <!--<resolver:AttributeEncoder xsi:type="enc:SAML1String" name="urn:mace:dir:attribute-def:username" />-->
+        <!--<resolver:AttributeEncoder xsi:type="enc:SAML2String" name="urn:oid:2.5.4.44" friendlyName="username" />-->
+    </resolver:AttributeDefinition>
+    <resolver:AttributeDefinition xsi:type="ad:Simple" id="password" sourceAttributeID="password">
+        <resolver:Dependency ref="dataConnector" />
+    </resolver:AttributeDefinition>
+</resolver:AttributeResolver>
